@@ -13,15 +13,20 @@ jobs:
       - name: Descargar código
         uses: actions/checkout@v4
 
-      - name: Verificar Docker
+      - name: Sincronizar proyecto al servidor
         run: |
-          docker --version
-          docker compose version
+          mkdir -p /home/davidev/projects/public/deploy-server
+          rsync -av --delete \
+            --exclude '.git' \
+            --exclude 'devops/infisical.env' \
+            ./ /home/davidev/projects/public/deploy-server/
 
       - name: Desplegar contenedores
+        working-directory: /home/davidev/projects/public/deploy-server
         run: |
           docker compose -f devops/docker-compose.yml up -d --build
 
       - name: Verificar contenedores
+        working-directory: /home/davidev/projects/public/deploy-server
         run: |
           docker compose -f devops/docker-compose.yml ps
