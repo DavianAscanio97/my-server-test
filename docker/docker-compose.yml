@@ -1,0 +1,47 @@
+name: public-deploy-server
+
+services:
+  deploy-server-infisical:
+    image: infisical/infisical:latest
+    container_name: deploy-server-infisical
+    restart: "no"
+    user: "0:0"
+    env_file:
+      - ./infisical.env
+    networks:
+      - proxy-net
+    volumes:
+      - infisical_env:/infisical-env
+      - /home/davidev/projects/scripts/write-infisical-env-file.sh:/usr/local/bin/write-infisical-env-file:ro
+    command: write-infisical-env-file
+
+  deploy-server-app:
+    image: nginx:alpine
+    container_name: deploy-server-app
+    restart: unless-stopped
+    depends_on:
+      deploy-server-infisical:
+        condition: service_completed_successfully
+    command: /bin/sh -c '. /infisical-env/app.env && cp -r /site/. /usr/share/nginx/html/ && rm -f /usr/share/nginx/html/env.js && nginx -g "daemon off;"'
+    networks:
+      - proxy-net
+    volumes:
+      - ../app/html:/site:ro
+      - infisical_env:/infisical-env:ro
+
+  deploy-server-cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: deploy-server-cloudflared
+    restart: unless-stopped
+    depends_on:
+      - deploy-server-app
+    networks:
+      - proxy-net
+    command: tunnel --no-autoupdate --url http://deploy-server-app:80
+
+volumes:
+  infisical_env:
+
+networks:
+  proxy-net:
+    external: true
