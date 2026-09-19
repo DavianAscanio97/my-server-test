@@ -17,10 +17,11 @@ services:
       - infisical_env:/infisical-env
       - /home/davidev/projects/scripts/write-infisical-env-file.sh:/scripts/write-infisical-env-file.sh:ro
 
-    command:
+    entrypoint:
       - /bin/sh
-      - /scripts/write-infisical-env-file.sh
 
+    command:
+      - /scripts/write-infisical-env-file.sh
   deploy-server-app:
     image: nginx:alpine
     container_name: deploy-server-app
