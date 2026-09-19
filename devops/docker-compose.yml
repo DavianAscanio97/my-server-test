@@ -7,12 +7,12 @@ services:
     restart: "no"
     user: "0:0"
     env_file:
-      - ./infisical.env
+      - /home/davidev/projects/secrets/deploy-server-infisical.env
     networks:
       - proxy-net
     volumes:
       - infisical_env:/infisical-env
-      - /home/davidev/projects/scripts/write-infisical-env-file.sh:/usr/local/bin/write-infisical-env-file:ro
+      - /home/davidev/projects/secrets/deploy-server-infisical.env:/infisical-env/app.env:ro
     command: write-infisical-env-file
 
   deploy-server-app:
