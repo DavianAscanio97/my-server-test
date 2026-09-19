@@ -6,14 +6,20 @@ services:
     container_name: deploy-server-infisical
     restart: "no"
     user: "0:0"
+
     env_file:
       - /home/davidev/projects/secrets/deploy-server-infisical.env
+
     networks:
       - proxy-net
+
     volumes:
       - infisical_env:/infisical-env
-      - /home/davidev/projects/secrets/deploy-server-infisical.env:/infisical-env/app.env:ro
-    command: write-infisical-env-file
+      - /home/davidev/projects/scripts/write-infisical-env-file.sh:/scripts/write-infisical-env-file.sh:ro
+
+    command:
+      - /bin/sh
+      - /scripts/write-infisical-env-file.sh
 
   deploy-server-app:
     image: nginx:alpine
