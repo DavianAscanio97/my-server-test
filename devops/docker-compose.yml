@@ -29,11 +29,10 @@ services:
     depends_on:
       deploy-server-infisical:
         condition: service_completed_successfully
-    command: /bin/sh -c '. /infisical-env/app.env && cp -r /site/. /usr/share/nginx/html/ && rm -f /usr/share/nginx/html/env.js && nginx -g "daemon off;"'
     networks:
       - proxy-net
     volumes:
-      - ../app/html:/site:ro
+      - ../app:/usr/share/nginx/html:ro
       - infisical_env:/infisical-env:ro
 
   deploy-server-cloudflared:
